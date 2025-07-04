@@ -15,10 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -92,6 +94,28 @@ public class UserService {
 
         response.setHeader(HttpHeaders.SET_COOKIE, deleteCookie("jwt"));
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie("refreshToken"));
+    }
+
+    public void refresh(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = extractCookie(request, "refreshToken");
+        if (refreshToken == null || !this.jwtTokenProvider.isTokenValid(refreshToken)) {
+            throw new AuthenticationCredentialsNotFoundException("유효하지 않은 Refresh Token");
+        }
+
+        String username = this.jwtTokenProvider.getUsername(refreshToken);
+        String redisRefresh = this.redisTemplate.opsForValue().get("RT:" + username);
+
+        if (!refreshToken.equals(redisRefresh)) {
+            throw new AuthenticationCredentialsNotFoundException("Refresh Token 불일치");
+        }
+
+        String newAccessToken = this.jwtTokenProvider.createToken(username);
+        String newRefreshToken = this.jwtTokenProvider.createRefreshToken(username);
+
+        this.redisTemplate.opsForValue().set("RT:" + username, newRefreshToken, 7, TimeUnit.DAYS);
+
+        response.setHeader("Set-Cookie", setCookie(newAccessToken));
+        response.addHeader("Set-Cookie", setRefreshCookie(newRefreshToken));
     }
 
     private String setCookie(String accessToken) {
