@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,5 +57,16 @@ public class UserController {
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         this.userService.logout(request, response);
         return ResponseEntity.ok("로그아웃 성공");
+    }
+
+    @Operation(summary = "Refresh User Token", description = "Validates the refresh token and issues a new access token. The refresh token must be valid and not expired.")
+    @PostMapping("/refresh-token")
+    public ResponseEntity<String> refresh(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            this.userService.refresh(request, response);
+            return ResponseEntity.ok("토큰 재발급 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 }
