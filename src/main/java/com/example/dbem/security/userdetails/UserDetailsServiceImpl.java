@@ -1,7 +1,7 @@
 package com.example.dbem.security.userdetails;
 
 import com.example.dbem.entity.User;
-import com.example.dbem.repostitory.UserRepository;
+import com.example.dbem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

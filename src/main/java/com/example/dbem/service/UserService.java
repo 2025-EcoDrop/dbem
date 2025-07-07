@@ -1,7 +1,7 @@
 package com.example.dbem.service;
 
 import com.example.dbem.enums.UserRole;
-import com.example.dbem.repostitory.UserRepository;
+import com.example.dbem.repository.UserRepository;
 import com.example.dbem.security.jwt.JwtTokenProvider;
 import com.example.dbem.security.userdetails.UserDetailsImpl;
 import com.example.dbem.dto.user.LoginRequestDTO;
@@ -20,7 +20,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
