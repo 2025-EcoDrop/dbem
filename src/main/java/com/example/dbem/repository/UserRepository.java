@@ -1,4 +1,4 @@
-package com.example.dbem.repostitory;
+package com.example.dbem.repository;
 
 import com.example.dbem.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
