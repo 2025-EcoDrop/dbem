@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<String> signup(
             @Parameter(description = "User registration data including username, email, and password.")
-            @RequestBody SignupRequestDTO dto) {
+            @Valid @RequestBody SignupRequestDTO dto) {
         try {
             this.userService.validatePassword(dto.getPassword());
             this.userService.signup(dto);
@@ -42,7 +43,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<String> login(
             @Parameter(description = "User credentials including username and password for authentication.")
-            @RequestBody LoginRequestDTO dto, HttpServletResponse response) {
+            @Valid @RequestBody LoginRequestDTO dto, HttpServletResponse response) {
         try {
             this.userService.login(dto, response);
         } catch (Exception e) {

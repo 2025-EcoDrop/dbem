@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReviewResponse {
+public class ReviewResponseDTO {
     @Schema(description = "Unique identifier of the medication review.", example = "1")
     private Long id;
 
@@ -34,8 +34,8 @@ public class ReviewResponse {
     @Schema(description = "Date and time when the review was last updated.", example = "2025-07-07 12:44:22.538649")
     private LocalDateTime updatedAt;
 
-    public static ReviewResponse toDto(Review review) {
-        return ReviewResponse.builder()
+    public static ReviewResponseDTO toDto(Review review) {
+        return ReviewResponseDTO.builder()
                 .id(review.getId())
                 .authorName(review.getAuthor().getUsername())
                 .productName(review.getProductName())
