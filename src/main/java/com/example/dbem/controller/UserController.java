@@ -1,5 +1,6 @@
 package com.example.dbem.controller;
 
+import com.example.dbem.security.userdetails.UserDetailsImpl;
 import com.example.dbem.service.UserService;
 import com.example.dbem.dto.user.LoginRequestDTO;
 import com.example.dbem.dto.user.SignupRequestDTO;
@@ -9,13 +10,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -68,6 +68,16 @@ public class UserController {
             return ResponseEntity.ok("토큰 재발급 성공");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Check Authentication Status", description = "Checks if the user is currently authenticated. Returns the username if the user is logged in.")
+    @GetMapping("/check")
+    public ResponseEntity<?> checkAuth(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        if (userDetails != null) {
+            return ResponseEntity.ok(Map.of("username", userDetails.getUsername()));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "인증되지 않은 사용자입니다."));
         }
     }
 }
