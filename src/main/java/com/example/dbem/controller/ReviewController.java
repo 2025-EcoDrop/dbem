@@ -18,14 +18,15 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @Operation(summary = "Check Reviews", description = "Retrieves a paginated list of notes written by the authenticated user. Supports sorting and pagination.")
+    @Operation(summary = "Check Reviews", description = "Retrieves a paginated list of notes written by the authenticated user. Supports sorting, pagination, and searching by keyword.")
     @GetMapping
     public ResponseEntity<?> getNotes(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                         @RequestParam(defaultValue = "0") int page,
-                                         @RequestParam(defaultValue = "10") int size,
-                                         @RequestParam(defaultValue = "createdAt") String sortBy,
-                                         @RequestParam(defaultValue = "desc") String sortDir) {
-        Page<ReviewResponseDTO> reviewPage =  this.reviewService.getReviews(userDetails.getUser(), page, size, sortBy, sortDir);
+                                      @RequestParam(value = "kw", defaultValue = "") String kw,
+                                      @RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(defaultValue = "10") int size,
+                                      @RequestParam(defaultValue = "createdAt") String sortBy,
+                                      @RequestParam(defaultValue = "desc") String sortDir) {
+        Page<ReviewResponseDTO> reviewPage =  this.reviewService.getReviews(userDetails.getUser(), page, size, sortBy, sortDir, kw);
 
         return ResponseEntity.ok(reviewPage);
     }

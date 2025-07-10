@@ -5,6 +5,7 @@ import com.example.dbem.dto.review.ReviewResponseDTO;
 import com.example.dbem.entity.Review;
 import com.example.dbem.entity.User;
 import com.example.dbem.repository.ReviewRepository;
+import com.example.dbem.spec.ReviewSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +23,16 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
 
     @Transactional
-    public Page<ReviewResponseDTO> getReviews(User user, int page, int size, String sortBy, String sortDir) {
+    public Page<ReviewResponseDTO> getReviews(User user, int page, int size, String sortBy, String sortDir, String kw) {
         Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-        return this.reviewRepository.findAllByAuthor(user, pageable).map(ReviewResponseDTO::toDto);
+        if (kw.isEmpty()) {
+            return this.reviewRepository.findAllByAuthor(user, pageable).map(ReviewResponseDTO::toDto);
+        } else {
+            Specification<Review> spec = ReviewSpecification.searchAll(kw, user);
+            return this.reviewRepository.findAll(spec, pageable).map(ReviewResponseDTO::toDto);
+        }
     }
 
     public ReviewResponseDTO createReview(ReviewRequestDTO dto, User user) {
