@@ -31,7 +31,7 @@ public class Review {
     @Column(length = 255)
     private String productName;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String review;
 
     @Column(precision = 2, scale = 1)
