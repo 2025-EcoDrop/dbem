@@ -1,5 +1,6 @@
 package com.example.dbem.entity;
 
+import com.example.dbem.dto.review.ReviewRequestDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -12,7 +13,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
@@ -43,4 +43,10 @@ public class Review {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public void update(ReviewRequestDTO dto) {
+        this.productName = dto.getProductName();
+        this.review = dto.getReview();
+        this.rating = dto.getRating();
+    }
 }

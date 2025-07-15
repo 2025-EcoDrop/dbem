@@ -12,5 +12,4 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findAll(Specification<Review> spec, Pageable pageable);
     Page<Review> findAllByAuthor(User user, Pageable pageable);
-    Optional<Review> findByIdAndAuthor(Long id, User user);
 }

@@ -5,16 +5,15 @@ import com.example.dbem.dto.booking.BookingResponseDTO;
 import com.example.dbem.entity.Booking;
 import com.example.dbem.entity.User;
 import com.example.dbem.enums.BookingStatus;
+import com.example.dbem.exception.custom.BookingForbiddenException;
+import com.example.dbem.exception.custom.BookingNotFoundException;
 import com.example.dbem.repository.BookingRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.nio.file.AccessDeniedException;
 
 @RequiredArgsConstructor
 @Service
@@ -36,32 +35,33 @@ public class BookingService {
 
     public BookingResponseDTO getBooking(Long id) {
         Booking booking = this.bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BookingNotFoundException("해당 예약을 찾을 수 없습니다."));
 
         return BookingResponseDTO.toDto(booking);
     }
 
     public BookingResponseDTO acceptBooking(Long id, User user) {
         Booking booking = this.bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다."));
-        booking.setStatus(BookingStatus.IN_PROGRESS.name());
-        booking.setCollector(user);
-        this.bookingRepository.saveAndFlush(booking);
+                .orElseThrow(() -> new BookingNotFoundException("해당 예약을 찾을 수 없습니다."));
+
+        booking.accept(BookingStatus.IN_PROGRESS.name(), user);
+        booking = this.bookingRepository.saveAndFlush(booking);
 
         return BookingResponseDTO.toDto(booking);
     }
 
-    public BookingResponseDTO completeBooking(Long id, User user) throws AccessDeniedException {
+    public BookingResponseDTO completeBooking(Long id, User user) {
         Booking booking = this.bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다."));
-        if (booking.getCollector().getUsername().equals(user.getUsername())) {
-            booking.setStatus(BookingStatus.COMPLETED.name());
-            this.bookingRepository.saveAndFlush(booking);
+                .orElseThrow(() -> new BookingNotFoundException("해당 예약을 찾을 수 없습니다."));
 
-            return BookingResponseDTO.toDto(booking);
-        } else {
-            throw new AccessDeniedException("데이터의 권한이 없습니다.");
+        if (!booking.getCollector().getUsername().equals(user.getUsername())) {
+            throw new BookingForbiddenException("해당 예약에 접근 권한이 없습니다.");
         }
+
+        booking.complete(BookingStatus.COMPLETED.name());
+        booking = this.bookingRepository.saveAndFlush(booking);
+
+        return BookingResponseDTO.toDto(booking);
     }
 
     // category = {0:"내가 신청한 것 & 신청중", 1:"내가 신청한 것 & 남이 수락(완료X)", 2:"내가 신청한 것 & 남이 완료", 3:"남이 신청한 것 & 내가 수락", 4:"남이 신청한 것 & 내가 완료"}
@@ -70,15 +70,15 @@ public class BookingService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
         if (category == 0) {
-            return this.bookingRepository.findAllByBookerAndStatus(user, BookingStatus.REQUESTED.name(), pageable);
+            return this.bookingRepository.findAllByBookerAndStatus(user, BookingStatus.REQUESTED.name(), pageable).map(BookingResponseDTO::toDto);
         } else if (category == 1) {
-            return this.bookingRepository.findAllByBookerAndStatus(user, BookingStatus.IN_PROGRESS.name(), pageable);
+            return this.bookingRepository.findAllByBookerAndStatus(user, BookingStatus.IN_PROGRESS.name(), pageable).map(BookingResponseDTO::toDto);
         } else if (category == 2) {
-            return this.bookingRepository.findAllByBookerAndStatus(user, BookingStatus.COMPLETED.name(), pageable);
+            return this.bookingRepository.findAllByBookerAndStatus(user, BookingStatus.COMPLETED.name(), pageable).map(BookingResponseDTO::toDto);
         } else if (category == 3) {
-            return this.bookingRepository.findAllByCollectorAndStatus(user, BookingStatus.IN_PROGRESS.name(),  pageable);
+            return this.bookingRepository.findAllByCollectorAndStatus(user, BookingStatus.IN_PROGRESS.name(),  pageable).map(BookingResponseDTO::toDto);
         } else {
-            return this.bookingRepository.findAllByCollectorAndStatus(user, BookingStatus.COMPLETED.name(),  pageable);
+            return this.bookingRepository.findAllByCollectorAndStatus(user, BookingStatus.COMPLETED.name(),  pageable).map(BookingResponseDTO::toDto);
         }
     }
 }
