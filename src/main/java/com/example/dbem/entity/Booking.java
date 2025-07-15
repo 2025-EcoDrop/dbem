@@ -9,7 +9,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
@@ -50,4 +49,13 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "collector_id")
     private User collector;
+
+    public void accept(String status, User collector) {
+        this.status = status;
+        this.collector = collector;
+    }
+
+    public void complete(String status) {
+        this.status = status;
+    }
 }

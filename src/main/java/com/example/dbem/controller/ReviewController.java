@@ -27,7 +27,6 @@ public class ReviewController {
                                       @RequestParam(defaultValue = "createdAt") String sortBy,
                                       @RequestParam(defaultValue = "desc") String sortDir) {
         Page<ReviewResponseDTO> reviewPage = this.reviewService.getReviews(userDetails.getUser(), page, size, sortBy, sortDir, kw);
-
         return ResponseEntity.ok(reviewPage);
     }
 
@@ -41,33 +40,21 @@ public class ReviewController {
     @Operation(summary = "Check a Review", description = "Retrieves the details of a specific note written by the authenticated user.")
     @GetMapping("/{id}")
     public ResponseEntity<?> getNote(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        try {
-            ReviewResponseDTO reviewResponse = this.reviewService.getReview(id, userDetails.getUser());
-            return ResponseEntity.ok(reviewResponse);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        ReviewResponseDTO reviewResponse = this.reviewService.getReview(id, userDetails.getUser());
+        return ResponseEntity.ok(reviewResponse);
     }
 
     @Operation(summary = "Update a Review", description = "Updates the content of a specific note written by the authenticated user.")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateNote(@Valid @RequestBody ReviewRequestDTO dto, @PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        try {
-            ReviewResponseDTO reviewResponse = this.reviewService.updateReview(dto, id, userDetails.getUser());
-            return ResponseEntity.ok(reviewResponse);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        ReviewResponseDTO reviewResponse = this.reviewService.updateReview(dto, id, userDetails.getUser());
+        return ResponseEntity.ok(reviewResponse);
     }
 
     @Operation(summary = "Delete a Review", description = "Deletes a specific note written by the authenticated user.")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteNote(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        try {
-            this.reviewService.deleteReview(id, userDetails.getUser());
-            return ResponseEntity.ok("리뷰 삭제 완료");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        this.reviewService.deleteReview(id, userDetails.getUser());
+        return ResponseEntity.ok("리뷰 삭제 완료");
     }
 }

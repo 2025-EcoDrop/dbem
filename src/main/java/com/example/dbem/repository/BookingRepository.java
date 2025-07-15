@@ -8,6 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    Page<BookingResponseDTO> findAllByBookerAndStatus(User user, String bookingStatus, Pageable pageable);
-    Page<BookingResponseDTO> findAllByCollectorAndStatus(User user, String name, Pageable pageable);
+    Page<Booking> findAllByBookerAndStatus(User user, String bookingStatus, Pageable pageable);
+    Page<Booking> findAllByCollectorAndStatus(User user, String name, Pageable pageable);
 }

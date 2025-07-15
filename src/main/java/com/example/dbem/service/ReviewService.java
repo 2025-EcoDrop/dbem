@@ -4,9 +4,10 @@ import com.example.dbem.dto.review.ReviewRequestDTO;
 import com.example.dbem.dto.review.ReviewResponseDTO;
 import com.example.dbem.entity.Review;
 import com.example.dbem.entity.User;
+import com.example.dbem.exception.custom.ReviewForbiddenException;
+import com.example.dbem.exception.custom.ReviewNotFoundException;
 import com.example.dbem.repository.ReviewRepository;
 import com.example.dbem.spec.ReviewSpecification;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -49,28 +49,40 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponseDTO getReview(Long id, User user) {
-        Review review = this.reviewRepository.findByIdAndAuthor(id, user)
-                .orElseThrow(() -> new EntityNotFoundException("해당 리뷰에 접근 권한이 없습니다."));
+        Review review = this.reviewRepository.findById(id)
+                .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰를 찾을 수 없습니다."));
+
+        if (!review.getAuthor().getUsername().equals(user.getUsername())) {
+            throw new ReviewForbiddenException("해당 리뷰에 접근 권한이 없습니다.");
+        }
 
         return ReviewResponseDTO.toDto(review);
     }
 
     @Transactional
     public ReviewResponseDTO updateReview(ReviewRequestDTO dto, Long id, User user) {
-        Review review = this.reviewRepository.findByIdAndAuthor(id, user)
-                .orElseThrow(() -> new EntityNotFoundException("해당 리뷰를 찾을 수 없습니다."));
-        review.setProductName(dto.getProductName());
-        review.setReview(dto.getReview());
-        review.setRating(dto.getRating());
-        Review newReview = this.reviewRepository.saveAndFlush(review);
+        Review review = this.reviewRepository.findById(id)
+                .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰를 찾을 수 없습니다."));
 
-        return ReviewResponseDTO.toDto(newReview);
+        if (!review.getAuthor().getUsername().equals(user.getUsername())) {
+            throw new ReviewForbiddenException("해당 리뷰에 접근 권한이 없습니다.");
+        }
+
+        review.update(dto);
+        review = this.reviewRepository.saveAndFlush(review);
+
+        return ReviewResponseDTO.toDto(review);
     }
 
     @Transactional
     public void deleteReview(Long id, User user) {
-        Review review = this.reviewRepository.findByIdAndAuthor(id, user)
-                .orElseThrow(() -> new AccessDeniedException("해당 리뷰에 접근 권한이 없습니다."));
+        Review review = this.reviewRepository.findById(id)
+                .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰를 찾을 수 없습니다."));
+
+        if (!review.getAuthor().getUsername().equals(user.getUsername())) {
+            throw new ReviewForbiddenException("해당 리뷰에 접근 권한이 없습니다.");
+        }
+
         this.reviewRepository.delete(review);
     }
 }

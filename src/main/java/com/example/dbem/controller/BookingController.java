@@ -5,14 +5,12 @@ import com.example.dbem.dto.booking.BookingResponseDTO;
 import com.example.dbem.security.userdetails.UserDetailsImpl;
 import com.example.dbem.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.file.AccessDeniedException;
 
 @RequestMapping("/api/booking")
 @RequiredArgsConstructor
@@ -22,7 +20,7 @@ public class BookingController {
 
     @Operation(summary = "Write a Booking", description = "Creates a new Booking requested by the authenticated user.")
     @PostMapping
-    public ResponseEntity<?> createBooking(@RequestBody BookingRequestDTO request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> createBooking(@Valid @RequestBody BookingRequestDTO request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         BookingResponseDTO bookingResponse = this.bookingService.createBooking(request, userDetails.getUser());
         return ResponseEntity.ok(bookingResponse);
     }
@@ -30,36 +28,22 @@ public class BookingController {
     @Operation(summary = "Check a Booking", description = "Retrieves the details of a specific booking made by the authenticated user.")
     @GetMapping("/{id}")
     public ResponseEntity<?> getBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        try {
-            BookingResponseDTO bookingResponse = this.bookingService.getBooking(id);
-            return ResponseEntity.ok(bookingResponse);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        BookingResponseDTO bookingResponse = this.bookingService.getBooking(id);
+        return ResponseEntity.ok(bookingResponse);
     }
 
     @Operation(summary = "Accept a Booking", description = "Marks the booking as accepted, allowing further processing or fulfillment.")
     @PostMapping("/{id}/accept")
     public ResponseEntity<?> acceptBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
-        try {
-            BookingResponseDTO bookingResponse = this.bookingService.acceptBooking(id, collector.getUser());
-            return ResponseEntity.ok(bookingResponse);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        BookingResponseDTO bookingResponse = this.bookingService.acceptBooking(id, collector.getUser());
+        return ResponseEntity.ok(bookingResponse);
     }
 
     @Operation(summary = "Complete a Booking", description = "Marks an accepted booking as completed by the authenticated user (collector).")
     @PostMapping("/{id}/complete")
     public ResponseEntity<?> completeBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
-        try {
-            BookingResponseDTO bookingResponse = this.bookingService.completeBooking(id, collector.getUser());
-            return ResponseEntity.ok(bookingResponse);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        BookingResponseDTO bookingResponse = this.bookingService.completeBooking(id, collector.getUser());
+        return ResponseEntity.ok(bookingResponse);
     }
 
     // category = {0:"내가 신청한 것 & 신청중", 1:"내가 신청한 것 & 남이 수락(완료X)", 2:"내가 신청한 것 & 남이 완료", 3:"남이 신청한 것 & 내가 수락", 4:"남이 신청한 것 & 내가 완료"}
