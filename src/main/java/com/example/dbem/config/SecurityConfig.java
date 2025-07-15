@@ -33,6 +33,7 @@ public class SecurityConfig {
     private final String[] allowUrl = {
             "/api/user/signup",
             "/api/user/login",
+            "/api/user/refresh-token",
     };
 
     @Bean
