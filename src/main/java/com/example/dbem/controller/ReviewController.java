@@ -26,7 +26,7 @@ public class ReviewController {
                                       @RequestParam(defaultValue = "10") int size,
                                       @RequestParam(defaultValue = "createdAt") String sortBy,
                                       @RequestParam(defaultValue = "desc") String sortDir) {
-        Page<ReviewResponseDTO> reviewPage =  this.reviewService.getReviews(userDetails.getUser(), page, size, sortBy, sortDir, kw);
+        Page<ReviewResponseDTO> reviewPage = this.reviewService.getReviews(userDetails.getUser(), page, size, sortBy, sortDir, kw);
 
         return ResponseEntity.ok(reviewPage);
     }

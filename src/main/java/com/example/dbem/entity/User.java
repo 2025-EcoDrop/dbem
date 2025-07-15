@@ -22,18 +22,10 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column
     private String password;
-
-    @Column
     private String name;
-
-    @Column
     private String provider;
-
-    @Column
     private String providerId;
 
-    @Column
     private UserRole role;
 }

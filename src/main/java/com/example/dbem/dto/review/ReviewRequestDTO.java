@@ -15,11 +15,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class ReviewRequestDTO {
     @Schema(description = "Medication product name entered by the user.", example = "타이레놀")
-    @NotEmpty(message = "제품명은 필수 항목입니다.")
+    @NotEmpty(message = "제품명을 작성해 주세요.")
     private String productName;
 
-    @Schema(description = "User's personal review or feedback on the medication.", example = "나랑 잘 맞음")
-    @NotEmpty(message = "리뷰는 필수 항목입니다.")
+    @Schema(description = "User's personal review or feedback on the medication.", example = "복통에 효과적이다.")
+    @NotEmpty(message = "리뷰를 작성해 주세요.")
     private String review;
 
     @Schema(description = "Rating given by the user for the medication. Ranges from 0.0 to 5.0 in 0.5 increments.", example = "3.5")

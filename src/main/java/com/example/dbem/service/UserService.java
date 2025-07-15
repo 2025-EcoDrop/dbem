@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Service
 public class UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
@@ -113,15 +116,15 @@ public class UserService {
 
         this.redisTemplate.opsForValue().set("RT:" + username, newRefreshToken, 7, TimeUnit.DAYS);
 
-        response.setHeader("Set-Cookie", setCookie(newAccessToken));
-        response.addHeader("Set-Cookie", setRefreshCookie(newRefreshToken));
+        response.setHeader(HttpHeaders.SET_COOKIE, setCookie(newAccessToken));
+        response.addHeader(HttpHeaders.SET_COOKIE, setRefreshCookie(newRefreshToken));
     }
 
     private String setCookie(String accessToken) {
         return ResponseCookie.from("jwt", accessToken)
                 .httpOnly(true)
                 .secure(false)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofHours(1))
                 .build()
@@ -132,7 +135,7 @@ public class UserService {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(false)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofDays(7))
                 .build()
@@ -143,7 +146,7 @@ public class UserService {
         return ResponseCookie.from(type, "")
                 .httpOnly(true)
                 .secure(false)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(0)
                 .build()
