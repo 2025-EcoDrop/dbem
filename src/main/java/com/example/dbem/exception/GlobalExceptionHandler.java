@@ -1,9 +1,6 @@
 package com.example.dbem.exception;
 
-import com.example.dbem.exception.custom.BookingForbiddenException;
-import com.example.dbem.exception.custom.BookingNotFoundException;
-import com.example.dbem.exception.custom.ReviewForbiddenException;
-import com.example.dbem.exception.custom.ReviewNotFoundException;
+import com.example.dbem.exception.custom.*;
 import com.example.dbem.exception.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,11 +60,22 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BookingForbiddenException.class)
-    public ResponseEntity<ErrorResponseDTO> handleBookingForbidden(BookingForbiddenException e) {
+    public ResponseEntity<ErrorResponseDTO> handleBookingForbiddenException(BookingForbiddenException e) {
         return ResponseEntity.status(403).body(
                 ErrorResponseDTO.builder()
                         .status(403)
                         .code("Booking_Forbidden")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(PublicDataNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handlePublicDataNotFoundException(PublicDataNotFoundException e) {
+        return ResponseEntity.status(404).body(
+                ErrorResponseDTO.builder()
+                        .status(404)
+                        .code("Public_Data_Not_Found")
                         .message(e.getMessage())
                         .build()
         );

@@ -27,6 +27,9 @@ public class ReviewResponseDTO {
     @Schema(description = "Rating given by the user for the medication. Ranges from 0.0 to 5.0 in 0.5 increments.", example = "3.5")
     private BigDecimal rating;
 
+    @Schema(description = "Indicates whether the medication name exists in the public data source.", example = "false")
+    private boolean publicData;
+
     @Schema(description = "Date and time when the review was created.", example = "2025-07-07 12:37:22.538649")
     private LocalDateTime createdAt;
 

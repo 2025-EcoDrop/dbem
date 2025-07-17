@@ -25,4 +25,7 @@ public class ReviewRequestDTO {
     @DecimalMin(value = "0.0", message = "별점은 최소 0점부터 가능합니다.")
     @DecimalMax(value = "5.0", message = "별점은 최대 5점까지 가능합니다.")
     private BigDecimal rating;
+
+    @Schema(description = "Indicates whether the medication name exists in the public data source.", example = "false")
+    private boolean publicData;
 }
