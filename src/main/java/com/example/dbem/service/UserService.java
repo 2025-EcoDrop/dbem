@@ -1,12 +1,17 @@
 package com.example.dbem.service;
 
+import com.example.dbem.dto.user.UsernameCheckResponseDTO;
+import com.example.dbem.entity.User;
 import com.example.dbem.enums.UserRole;
+import com.example.dbem.exception.custom.user.InvalidPasswordFormatException;
+import com.example.dbem.exception.custom.user.InvalidRefreshTokenException;
+import com.example.dbem.exception.custom.user.UnauthorizedAccessException;
+import com.example.dbem.exception.custom.user.UserExistsException;
 import com.example.dbem.repository.UserRepository;
 import com.example.dbem.security.jwt.JwtTokenProvider;
 import com.example.dbem.security.userdetails.UserDetailsImpl;
 import com.example.dbem.dto.user.LoginRequestDTO;
 import com.example.dbem.dto.user.SignupRequestDTO;
-import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,33 +29,54 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
 
+    public UsernameCheckResponseDTO checkUsername(String username) {
+        boolean exists = this.userRepository.existsByUsername(username);
+
+        return UsernameCheckResponseDTO.builder()
+                .exists(!exists)
+                .message(
+                        exists
+                        ? "이미 존재하는 아이디입니다. 사용 불가능한 아이디입니다."
+                        :"사용 가능한 아이디입니다."
+                )
+                .build();
+    }
+
+    public String checkAuth(User user) {
+        if (user == null) {
+            throw new UnauthorizedAccessException("로그인이 필요합니다.");
+        } else {
+            return user.getUsername();
+        }
+    }
+
     public void validatePassword(String password) {
         if (password == null || password.length() < 8 || password.length() > 20) {
-            throw new IllegalArgumentException("비밀번호는 8자 이상 20자 이하로 입력해주세요.");
+            throw new InvalidPasswordFormatException("비밀번호는 8자 이상 20자 이하로 입력해주세요.");
         }
         if (!password.matches(".*[A-Za-z].*")) {
-            throw new IllegalArgumentException("비밀번호에 영문자를 최소 1자 이상 포함해야 합니다.");
+            throw new InvalidPasswordFormatException("비밀번호에 영문자를 최소 1자 이상 포함해야 합니다.");
         }
         if (!password.matches(".*[0-9].*")) {
-            throw new IllegalArgumentException("비밀번호에 숫자를 최소 1자 이상 포함해야 합니다.");
+            throw new InvalidPasswordFormatException("비밀번호에 숫자를 최소 1자 이상 포함해야 합니다.");
         }
         if (!password.matches(".*[!@#$%^&*].*")) {
-            throw new IllegalArgumentException("비밀번호에 특수문자를 최소 1자 이상 포함해야 합니다. (사용 가능한 특수 문자: !, @, #, $, %, ^, &, *)");
+            throw new InvalidPasswordFormatException("비밀번호에 특수문자를 최소 1자 이상 포함해야 합니다. (사용 가능한 특수 문자: !, @, #, $, %, ^, &, *)");
         }
         if (!password.matches("^[A-Za-z0-9!@#$%^&*]+$")) {
-            throw new IllegalArgumentException("허용되지 않은 문자가 포함되어 있습니다.");
+            throw new InvalidPasswordFormatException("허용되지 않은 문자가 포함되어 있습니다.");
         }
     }
 
@@ -62,7 +87,7 @@ public class UserService {
                     SignupRequestDTO.toModel(dto, UserRole.USER, passwordEncoder)
             );
         } else {
-            throw new EntityExistsException("이미 존재하는 사용자 이름 입니다.");
+            throw new UserExistsException("이미 존재하는 사용자 이름 입니다.");
         }
     }
 
@@ -81,11 +106,6 @@ public class UserService {
         this.redisTemplate.opsForValue().set("RT:" + userDetails.getUsername(), refreshToken, 7, TimeUnit.DAYS);
     }
 
-    public void logout(HttpServletResponse response) {
-        response.setHeader(HttpHeaders.SET_COOKIE, deleteCookie("jwt"));
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie("refreshToken"));
-    }
-
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractCookie(request, "refreshToken");
 
@@ -101,14 +121,14 @@ public class UserService {
     public void refresh(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractCookie(request, "refreshToken");
         if (refreshToken == null || !this.jwtTokenProvider.isTokenValid(refreshToken)) {
-            throw new AuthenticationCredentialsNotFoundException("유효하지 않은 Refresh Token");
+            throw new InvalidRefreshTokenException("유효하지 않은 Refresh Token");
         }
 
         String username = this.jwtTokenProvider.getUsername(refreshToken);
         String redisRefresh = this.redisTemplate.opsForValue().get("RT:" + username);
 
         if (!refreshToken.equals(redisRefresh)) {
-            throw new AuthenticationCredentialsNotFoundException("Refresh Token 불일치");
+            throw new InvalidRefreshTokenException("Refresh Token 불일치");
         }
 
         String newAccessToken = this.jwtTokenProvider.createToken(username);

@@ -38,7 +38,7 @@ public class PublicDataService {
                 .queryParam("itemName", encodedKeyword)
                 .queryParam("type", "json")
                 .queryParam("pageNo", 1)
-                .queryParam("numOfRows", 10)
+                .queryParam("numOfRows", 30)
                 .build(true)  // 이미 인코딩된 문자열은 그대로 유지
                 .toUri();
 

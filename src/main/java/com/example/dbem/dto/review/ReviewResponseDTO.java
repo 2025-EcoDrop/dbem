@@ -43,6 +43,7 @@ public class ReviewResponseDTO {
                 .productName(review.getProductName())
                 .review(review.getReview())
                 .rating(review.getRating())
+                .publicData(review.isPublicData())
                 .createdAt(review.getCreatedAt())
                 .updatedAt(review.getUpdatedAt())
                 .build();

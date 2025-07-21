@@ -36,7 +36,6 @@ public class Review {
     @Column(precision = 2, scale = 1)
     private BigDecimal rating;
 
-    @ColumnDefault(value = "false")
     private boolean publicData;
 
     @CreatedDate
@@ -50,5 +49,6 @@ public class Review {
         this.productName = dto.getProductName();
         this.review = dto.getReview();
         this.rating = dto.getRating();
+        this.publicData = dto.isPublicData();
     }
 }

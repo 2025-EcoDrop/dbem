@@ -1,6 +1,14 @@
 package com.example.dbem.exception;
 
 import com.example.dbem.exception.custom.*;
+import com.example.dbem.exception.custom.booking.BookingForbiddenException;
+import com.example.dbem.exception.custom.booking.BookingNotFoundException;
+import com.example.dbem.exception.custom.review.ReviewForbiddenException;
+import com.example.dbem.exception.custom.review.ReviewNotFoundException;
+import com.example.dbem.exception.custom.user.InvalidPasswordFormatException;
+import com.example.dbem.exception.custom.user.InvalidRefreshTokenException;
+import com.example.dbem.exception.custom.user.UnauthorizedAccessException;
+import com.example.dbem.exception.custom.user.UserExistsException;
 import com.example.dbem.exception.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +32,50 @@ public class GlobalExceptionHandler {
         });
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(InvalidPasswordFormatException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidPasswordFormatException(InvalidPasswordFormatException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorResponseDTO.builder()
+                        .status(400)
+                        .code("Invalid_Password_Format")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(UserExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserExistsException(UserExistsException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                ErrorResponseDTO.builder()
+                        .status(409)
+                        .code("User_Exists")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidRefreshTokenException(InvalidRefreshTokenException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                ErrorResponseDTO.builder()
+                        .status(401)
+                        .code("Invalid_Refresh_Token")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUnauthorizedAccessException(UnauthorizedAccessException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                ErrorResponseDTO.builder()
+                        .status(401)
+                        .code("Unauthorized_Access")
+                        .message(e.getMessage())
+                        .build()
+        );
     }
 
     @ExceptionHandler(ReviewNotFoundException.class)
@@ -61,7 +113,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BookingForbiddenException.class)
     public ResponseEntity<ErrorResponseDTO> handleBookingForbiddenException(BookingForbiddenException e) {
-        return ResponseEntity.status(403).body(
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                 ErrorResponseDTO.builder()
                         .status(403)
                         .code("Booking_Forbidden")
@@ -72,7 +124,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PublicDataNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handlePublicDataNotFoundException(PublicDataNotFoundException e) {
-        return ResponseEntity.status(404).body(
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 ErrorResponseDTO.builder()
                         .status(404)
                         .code("Public_Data_Not_Found")
