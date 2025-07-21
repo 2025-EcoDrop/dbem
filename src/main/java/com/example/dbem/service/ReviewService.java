@@ -4,8 +4,8 @@ import com.example.dbem.dto.review.ReviewRequestDTO;
 import com.example.dbem.dto.review.ReviewResponseDTO;
 import com.example.dbem.entity.Review;
 import com.example.dbem.entity.User;
-import com.example.dbem.exception.custom.ReviewForbiddenException;
-import com.example.dbem.exception.custom.ReviewNotFoundException;
+import com.example.dbem.exception.custom.review.ReviewForbiddenException;
+import com.example.dbem.exception.custom.review.ReviewNotFoundException;
 import com.example.dbem.repository.ReviewRepository;
 import com.example.dbem.spec.ReviewSpecification;
 import jakarta.transaction.Transactional;
@@ -42,6 +42,7 @@ public class ReviewService {
                         .productName(dto.getProductName())
                         .review(dto.getReview())
                         .rating(dto.getRating())
+                        .publicData(dto.isPublicData())
                         .build());
 
         return ReviewResponseDTO.toDto(review);

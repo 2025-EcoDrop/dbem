@@ -1,8 +1,8 @@
 package com.example.dbem.config;
 
+import com.example.dbem.security.exception.CustomAccessDeniedHandler;
+import com.example.dbem.security.exception.CustomAuthenticationEntryPoint;
 import com.example.dbem.security.jwt.JwtAuthenticationFilter;
-import com.example.dbem.security.jwt.JwtTokenProvider;
-import com.example.dbem.security.userdetails.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +27,16 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     private final String[] allowUrl = {
             "/api/user/signup",
             "/api/user/login",
             "/api/user/refresh-token",
+            "/api/user/check-username",
+            "/api/user/send-verification",
     };
 
     @Bean
@@ -59,8 +62,12 @@ public class SecurityConfig {
                         .requestMatchers(allowUrl).permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService),
+                        jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 );
 
@@ -74,7 +81,7 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Cookie"));
-        config.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
+        config.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie", "Content-Type"));
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

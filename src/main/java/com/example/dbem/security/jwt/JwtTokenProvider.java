@@ -18,7 +18,7 @@ public class JwtTokenProvider {
     private String secret;
 
     private SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(this.secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String createToken(String username) {
