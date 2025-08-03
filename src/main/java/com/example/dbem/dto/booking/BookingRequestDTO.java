@@ -1,7 +1,7 @@
 package com.example.dbem.dto.booking;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 public class BookingRequestDTO {
     @Schema(description = "User's reservation request.", example = "저 대신 주변 약국에 약을 버려줄 사람 구해요.")
-    @NotEmpty(message = "요청할 내용을 작성해 주세요.")
+    @NotBlank(message = "요청할 내용을 작성해 주세요.")
     private String content;
 
     @Schema(description = "Address of the user who made the reservation.", example = "서울특별시 강남구 테헤란로 123")

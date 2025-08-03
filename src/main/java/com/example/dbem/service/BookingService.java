@@ -23,6 +23,7 @@ public class BookingService {
     public BookingResponseDTO createBooking(BookingRequestDTO request, User user) {
         Booking booking = this.bookingRepository.saveAndFlush(
                 Booking.builder()
+                        .content(request.getContent())
                         .booker(user)
                         .address(request.getAddress())
                         .latitude(request.getLatitude())
