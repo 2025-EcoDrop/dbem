@@ -32,6 +32,20 @@ public class BookingController {
         return ResponseEntity.ok(bookingResponse);
     }
 
+    @Operation(summary = "Update a Booking", description = "Updates the content of a specific booking made by the authenticated user.")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBooking(@Valid @RequestBody BookingRequestDTO request, @PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        BookingResponseDTO bookingResponse = this.bookingService.updateBooking(request, id, userDetails.getUsername());
+        return ResponseEntity.ok(bookingResponse);
+    }
+
+    @Operation(summary = "Delete a Booking", description = "Deletes a specific booking made by the authenticated user.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        this.bookingService.deleteBooking(id, userDetails.getUsername());
+        return ResponseEntity.ok("예약 삭제 완료");
+    }
+
     @Operation(summary = "Accept a Booking", description = "Marks the booking as accepted, allowing further processing or fulfillment.")
     @PostMapping("/{id}/accept")
     public ResponseEntity<?> acceptBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
