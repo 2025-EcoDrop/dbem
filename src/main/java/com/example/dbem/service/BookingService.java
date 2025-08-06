@@ -26,6 +26,9 @@ public class BookingService {
                         .content(request.getContent())
                         .booker(user)
                         .address(request.getAddress())
+                        .region_1depth(request.getRegion_1depth())
+                        .region_2depth(request.getRegion_2depth())
+                        .region_3depth(request.getRegion_3depth())
                         .latitude(request.getLatitude())
                         .longitude(request.getLongitude())
                         .status(BookingStatus.REQUESTED.toString())
@@ -39,6 +42,39 @@ public class BookingService {
                 .orElseThrow(() -> new BookingNotFoundException("해당 예약을 찾을 수 없습니다."));
 
         return BookingResponseDTO.toDto(booking);
+    }
+
+    public BookingResponseDTO updateBooking(BookingRequestDTO request, Long id, String username) {
+        Booking booking = this.bookingRepository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException("해당 예약을 찾을 수 없습니다."));
+
+        if (!booking.getBooker().getUsername().equals(username)) {
+            throw new BookingForbiddenException("해당 예약에 접근 권한이 없습니다.");
+        }
+
+        booking.update(
+                request.getContent(),
+                request.getAddress(),
+                request.getRegion_1depth(),
+                request.getRegion_2depth(),
+                request.getRegion_3depth(),
+                request.getLatitude(),
+                request.getLongitude());
+
+        booking = this.bookingRepository.saveAndFlush(booking);
+
+        return BookingResponseDTO.toDto(booking);
+    }
+
+    public void deleteBooking(Long id, String username) {
+        Booking booking = this.bookingRepository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException("해당 예약을 찾을 수 없습니다."));
+
+        if (!booking.getBooker().getUsername().equals(username)) {
+            throw new BookingForbiddenException("해당 예약에 접근 권한이 없습니다.");
+        }
+
+        this.bookingRepository.delete(booking);
     }
 
     public BookingResponseDTO acceptBooking(Long id, User user) {

@@ -50,6 +50,18 @@ public class Booking {
     @JoinColumn(name = "collector_id")
     private User collector;
 
+    public void update(String content, String address,
+                       String region_1depth, String region_2depth, String region_3depth,
+                       Double latitude, Double longitude) {
+        this.content = content;
+        this.address = address;
+        this.region_1depth = region_1depth;
+        this.region_2depth = region_2depth;
+        this.region_3depth = region_3depth;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
     public void accept(String status, User collector) {
         this.status = status;
         this.collector = collector;
