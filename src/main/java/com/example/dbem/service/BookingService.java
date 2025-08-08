@@ -20,6 +20,13 @@ import org.springframework.stereotype.Service;
 public class BookingService {
     private final BookingRepository bookingRepository;
 
+    public Page<BookingResponseDTO> getBookings(int page, int size, String sortBy, String sortDir) {
+        Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        return this.bookingRepository.findAllByStatus(BookingStatus.REQUESTED.name(), pageable).map(BookingResponseDTO::toDto);
+    }
+
     public BookingResponseDTO createBooking(BookingRequestDTO request, User user) {
         Booking booking = this.bookingRepository.saveAndFlush(
                 Booking.builder()

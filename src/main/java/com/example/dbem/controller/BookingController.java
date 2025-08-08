@@ -18,6 +18,16 @@ import org.springframework.web.bind.annotation.*;
 public class BookingController {
     private final BookingService bookingService;
 
+    @Operation(summary = "Check Bookings", description = "Retrieves a paginated list of bookings with status REQUESTED made by the authenticated user. Supports sorting and pagination.")
+    @GetMapping
+    public ResponseEntity<?> getBookings(@RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "10") int size,
+                                         @RequestParam(defaultValue = "createdAt") String sortBy,
+                                         @RequestParam(defaultValue = "desc") String sortDir) {
+        Page<BookingResponseDTO> bookingPage = this.bookingService.getBookings(page, size, sortBy, sortDir);
+        return ResponseEntity.ok(bookingPage);
+    }
+
     @Operation(summary = "Write a Booking", description = "Creates a new Booking requested by the authenticated user.")
     @PostMapping
     public ResponseEntity<?> createBooking(@Valid @RequestBody BookingRequestDTO request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -62,7 +72,7 @@ public class BookingController {
 
     // category = {0:"내가 신청한 것 & 신청중", 1:"내가 신청한 것 & 남이 수락(완료X)", 2:"내가 신청한 것 & 남이 완료", 3:"남이 신청한 것 & 내가 수락", 4:"남이 신청한 것 & 내가 완료"}
     // category가 3이나 4이면 sortBy는 createdA가 아닌 updatedAt으로 정렬 해야함으로 updatedAt을 값으로 받도록 설계 해야함
-    @Operation(summary = "Check Bookings", description = "Retrieves a paginated list of bookings made by the authenticated user. Supports filtering by booking status (e.g., REQUESTED, IN_PROGRESS, COMPLETED).")
+    @Operation(summary = "Check My Bookings", description = "Retrieves a paginated list of bookings made by the authenticated user. Supports filtering by booking status (e.g., REQUESTED, IN_PROGRESS, COMPLETED).")
     @GetMapping("/mine/{category}")
     public ResponseEntity<?> getMyBookings(@PathVariable int category,
                                            @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -70,7 +80,7 @@ public class BookingController {
                                            @RequestParam(defaultValue = "10") int size,
                                            @RequestParam(defaultValue = "createdAt") String sortBy,
                                            @RequestParam(defaultValue = "desc") String sortDir) {
-        Page<BookingResponseDTO> bookingResponses = this.bookingService.getMyBookings(category, userDetails.getUser(), page, size, sortBy, sortDir);
-        return ResponseEntity.ok(bookingResponses);
+        Page<BookingResponseDTO> bookingPage = this.bookingService.getMyBookings(category, userDetails.getUser(), page, size, sortBy, sortDir);
+        return ResponseEntity.ok(bookingPage);
     }
 }
