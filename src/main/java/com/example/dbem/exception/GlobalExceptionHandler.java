@@ -3,6 +3,8 @@ package com.example.dbem.exception;
 import com.example.dbem.exception.custom.*;
 import com.example.dbem.exception.custom.booking.BookingForbiddenException;
 import com.example.dbem.exception.custom.booking.BookingNotFoundException;
+import com.example.dbem.exception.custom.email.SendEmailInternalServerError;
+import com.example.dbem.exception.custom.email.SendEmailNotFoundException;
 import com.example.dbem.exception.custom.review.ReviewForbiddenException;
 import com.example.dbem.exception.custom.review.ReviewNotFoundException;
 import com.example.dbem.exception.custom.user.InvalidPasswordFormatException;
@@ -128,6 +130,28 @@ public class GlobalExceptionHandler {
                 ErrorResponseDTO.builder()
                         .status(404)
                         .code("Public_Data_Not_Found")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(SendEmailNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleSendEmailNotFoundException(PublicDataNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ErrorResponseDTO.builder()
+                        .status(404)
+                        .code("Send_Email_Not_Found")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(SendEmailInternalServerError.class)
+    public ResponseEntity<ErrorResponseDTO> handleSendEmailInternalServerError(PublicDataNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                ErrorResponseDTO.builder()
+                        .status(500)
+                        .code("Send_Email_INTERNAL_SERVER_ERROR")
                         .message(e.getMessage())
                         .build()
         );
