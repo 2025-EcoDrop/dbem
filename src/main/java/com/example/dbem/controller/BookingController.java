@@ -20,11 +20,12 @@ public class BookingController {
 
     @Operation(summary = "Check Bookings", description = "Retrieves a paginated list of bookings with status REQUESTED made by the authenticated user. Supports sorting and pagination.")
     @GetMapping
-    public ResponseEntity<?> getBookings(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<?> getBookings(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                         @RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "10") int size,
                                          @RequestParam(defaultValue = "createdAt") String sortBy,
                                          @RequestParam(defaultValue = "desc") String sortDir) {
-        Page<BookingResponseDTO> bookingPage = this.bookingService.getBookings(page, size, sortBy, sortDir);
+        Page<BookingResponseDTO> bookingPage = this.bookingService.getBookings(userDetails.getUser(), page, size, sortBy, sortDir);
         return ResponseEntity.ok(bookingPage);
     }
 
