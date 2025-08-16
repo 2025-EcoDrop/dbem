@@ -21,15 +21,11 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
+    @Operation(summary = "Check Username Availability", description = "Checks if the provided username is already taken before completing the sign-up process.")
     @PostMapping("/check-username")
     public ResponseEntity<?> checkUsername(@Valid @RequestBody UsernameCheckRequestDTO dto) {
         UsernameCheckResponseDTO response = this.userService.checkUsername(dto.getUsername());
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/send-verification")
-    public ResponseEntity<?> sendEmailVerification(@Valid @RequestBody EmailVerificationRequestDTO dto) {
-        return ResponseEntity.ok("이메일 인증 - 개발 예정");
     }
 
     @Operation(summary = "User Sign-Up", description = "Registers a new user by accepting username, email, and password. " +
