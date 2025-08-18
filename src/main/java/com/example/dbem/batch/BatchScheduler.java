@@ -19,7 +19,7 @@ public class BatchScheduler {
 //    @Scheduled(cron = "*/10 * * * * ?") // 10초마다 실행
 //    @Scheduled(cron = "0 0 */1 * * ?") // 1시간마다 실행
 //    @Scheduled(cron = "0 0,30 * * * ?") // 30분마다 실행
-    @Scheduled(cron = "0 0 3 0 * ?") // 매일 새벽 3시 실행
+    @Scheduled(cron = "0 0 3 * * ?") // 매일 새벽 3시 실행
     public void runCleanupJob() throws Exception {
         try {
             JobParameters params = new JobParametersBuilder()
