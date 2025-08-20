@@ -12,6 +12,7 @@ import com.example.dbem.exception.custom.user.InvalidRefreshTokenException;
 import com.example.dbem.exception.custom.user.UnauthorizedAccessException;
 import com.example.dbem.exception.custom.user.UserExistsException;
 import com.example.dbem.exception.dto.ErrorResponseDTO;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,6 +35,22 @@ public class GlobalExceptionHandler {
         });
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        String message = "데이터베이스에 이미 저장된 값이 존재합니다.";
+
+        if (ex.getCause() != null && ex.getCause().getMessage() != null) {
+            String causeMessage = ex.getCause().getMessage();
+
+            // 예: email unique constraint 위반
+            if (causeMessage.contains("uk6dotkott2kjsp8vw4d0m25fb7")) {
+                message = "이미 사용 중인 email입니다.";
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 
     @ExceptionHandler(InvalidPasswordFormatException.class)
