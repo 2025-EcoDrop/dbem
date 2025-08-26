@@ -30,9 +30,14 @@ public class Booking {
 
     // 수거 위치 (주소, 시(도)/구/동, 위도/경도)
     private String address;
-    private String region_1depth;
-    private String region_2depth;
-    private String region_3depth;
+
+    @Column(name="region_1depth")
+    private String region1depth;
+    @Column(name="region_2depth")
+    private String region2depth;
+    @Column(name="region_3depth")
+    private String region3depth;
+
     private Double latitude;
     private Double longitude;
 
@@ -55,9 +60,9 @@ public class Booking {
                        Double latitude, Double longitude) {
         this.content = content;
         this.address = address;
-        this.region_1depth = region_1depth;
-        this.region_2depth = region_2depth;
-        this.region_3depth = region_3depth;
+        this.region1depth = region_1depth;
+        this.region2depth = region_2depth;
+        this.region3depth = region_3depth;
         this.latitude = latitude;
         this.longitude = longitude;
     }

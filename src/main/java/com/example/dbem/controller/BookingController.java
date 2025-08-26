@@ -18,15 +18,29 @@ import org.springframework.web.bind.annotation.*;
 public class BookingController {
     private final BookingService bookingService;
 
-    @Operation(summary = "Check Bookings", description = "Retrieves a paginated list of bookings with status REQUESTED made by the authenticated user. Supports sorting and pagination.")
+    @Operation(summary = "Check Bookings", description = "Retrieves a paginated list of bookings with status REQUESTED made by the authenticated user. Supports sorting, pagination, and filtering by region.")
     @GetMapping
     public ResponseEntity<?> getBookings(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                          @RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "10") int size,
                                          @RequestParam(defaultValue = "createdAt") String sortBy,
-                                         @RequestParam(defaultValue = "desc") String sortDir) {
-        Page<BookingResponseDTO> bookingPage = this.bookingService.getBookings(userDetails.getUser(), page, size, sortBy, sortDir);
-        return ResponseEntity.ok(bookingPage);
+                                         @RequestParam(defaultValue = "desc") String sortDir,
+                                         @RequestParam(required = false) String city,
+                                         @RequestParam(required = false) String district,
+                                         @RequestParam(required = false) String town) {
+        if (city == null || city.isEmpty()) {
+            Page<BookingResponseDTO> bookingPage = this.bookingService.getBookings(userDetails.getUser(), page, size, sortBy, sortDir);
+            return ResponseEntity.ok(bookingPage);
+        } else if (district == null || district.isEmpty()) {
+            Page<BookingResponseDTO> bookingPage = this.bookingService.getBookingsByCity(userDetails.getUser(), page, size, sortBy, sortDir, city);
+            return ResponseEntity.ok(bookingPage);
+        } else if (town == null || town.isEmpty()) {
+            Page<BookingResponseDTO> bookingPage = this.bookingService.getBookingsByCityAndDistrict(userDetails.getUser(), page, size, sortBy, sortDir, city, district);
+            return ResponseEntity.ok(bookingPage);
+        } else {
+            Page<BookingResponseDTO> bookingPage = this.bookingService.getBookingsByCityAndDistrictAndTown(userDetails.getUser(), page, size, sortBy, sortDir, city, district, town);
+            return ResponseEntity.ok(bookingPage);
+        }
     }
 
     @Operation(summary = "Write a Booking", description = "Creates a new Booking requested by the authenticated user.")

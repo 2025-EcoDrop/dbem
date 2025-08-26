@@ -27,15 +27,36 @@ public class BookingService {
         return this.bookingRepository.findAllByStatusAndBookerUsernameNot(BookingStatus.REQUESTED.name(), user.getUsername(), pageable).map(BookingResponseDTO::toDto);
     }
 
+    public Page<BookingResponseDTO> getBookingsByCity(User user, int page, int size, String sortBy, String sortDir, String city) {
+        Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        return this.bookingRepository.findAllByStatusAndRegion1depthAndBookerUsernameNot(BookingStatus.REQUESTED.name(), city, user.getUsername(), pageable).map(BookingResponseDTO::toDto);
+    }
+
+    public Page<BookingResponseDTO> getBookingsByCityAndDistrict(User user, int page, int size, String sortBy, String sortDir, String city, String district) {
+        Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        return this.bookingRepository.findAllByStatusAndRegion1depthAndRegion2depthAndBookerUsernameNot(BookingStatus.REQUESTED.name(), city, district, user.getUsername(), pageable).map(BookingResponseDTO::toDto);
+    }
+
+    public Page<BookingResponseDTO> getBookingsByCityAndDistrictAndTown(User user, int page, int size, String sortBy, String sortDir, String city, String district, String town) {
+        Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        return this.bookingRepository.findAllByStatusAndRegion1depthAndRegion2depthAndRegion3depthAndBookerUsernameNot(BookingStatus.REQUESTED.name(), city, district, town, user.getUsername(), pageable).map(BookingResponseDTO::toDto);
+    }
+
     public BookingResponseDTO createBooking(BookingRequestDTO request, User user) {
         Booking booking = this.bookingRepository.saveAndFlush(
                 Booking.builder()
                         .content(request.getContent())
                         .booker(user)
                         .address(request.getAddress())
-                        .region_1depth(request.getRegion_1depth())
-                        .region_2depth(request.getRegion_2depth())
-                        .region_3depth(request.getRegion_3depth())
+                        .region1depth(request.getRegion_1depth())
+                        .region2depth(request.getRegion_2depth())
+                        .region3depth(request.getRegion_3depth())
                         .latitude(request.getLatitude())
                         .longitude(request.getLongitude())
                         .status(BookingStatus.REQUESTED.toString())
