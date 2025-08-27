@@ -2,8 +2,11 @@ package com.example.dbem.controller;
 
 import com.example.dbem.dto.booking.BookingRequestDTO;
 import com.example.dbem.dto.booking.BookingResponseDTO;
+import com.example.dbem.dto.booking.CompleteRequestDTO;
+import com.example.dbem.exception.custom.distance.DistanceUnprocessableEntityException;
 import com.example.dbem.security.userdetails.UserDetailsImpl;
 import com.example.dbem.service.BookingService;
+import com.example.dbem.service.DistanceService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 public class BookingController {
+    final int ACCEPT_DISTANCE = 5000;
+    final int COMPLETE_DISTANCE = 100;
+
     private final BookingService bookingService;
+    private final DistanceService distanceService;
 
     @Operation(summary = "Check Bookings", description = "Retrieves a paginated list of bookings with status REQUESTED made by the authenticated user. Supports sorting, pagination, and filtering by region.")
     @GetMapping
@@ -71,16 +78,18 @@ public class BookingController {
         return ResponseEntity.ok("예약 삭제 완료");
     }
 
-    @Operation(summary = "Accept a Booking", description = "Marks the booking as accepted, allowing further processing or fulfillment.")
+    @Operation(summary = "Accept a Booking", description = "Marks the booking as accepted, enabling further processing or fulfillment, provided that the current location is within the permitted distance from the booking location.")
     @PostMapping("/{id}/accept")
-    public ResponseEntity<?> acceptBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
+    public ResponseEntity<?> acceptBooking(@Valid @RequestBody CompleteRequestDTO request, @PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
+        this.distanceService.calculateDistance(request.getLatitude1(), request.getLongitude1(), request.getLatitude2(), request.getLongitude2(), ACCEPT_DISTANCE);
         BookingResponseDTO bookingResponse = this.bookingService.acceptBooking(id, collector.getUser());
         return ResponseEntity.ok(bookingResponse);
     }
 
-    @Operation(summary = "Complete a Booking", description = "Marks an accepted booking as completed by the authenticated user (collector).")
+    @Operation(summary = "Complete a Booking", description = "Marks an accepted booking as completed by the authenticated user (collector), provided that their current location is within the permitted distance from the booking location.")
     @PostMapping("/{id}/complete")
-    public ResponseEntity<?> completeBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
+    public ResponseEntity<?> completeBooking(@Valid @RequestBody CompleteRequestDTO request, @PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
+        this.distanceService.calculateDistance(request.getLatitude1(), request.getLongitude1(), request.getLatitude2(), request.getLongitude2(), COMPLETE_DISTANCE);
         BookingResponseDTO bookingResponse = this.bookingService.completeBooking(id, collector.getUser());
         return ResponseEntity.ok(bookingResponse);
     }
