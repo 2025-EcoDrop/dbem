@@ -15,16 +15,12 @@ public class TownResponse {
     @Schema(description = "Unique identifier of the Town.", example = "1")
     private Long id;
 
-    @Schema(description = "The legal name of the town in South Korea.", example = "명일동")
-    private String legalTown;
-
-    @Schema(description = "The administrative name of the town (eup/myeon/dong) in South Korea.", example = "명일1동")
+    @Schema(description = "The legal name of the town (eup/myeon/dong) in South Korea.", example = "명일1동")
     private String town;
 
     public static TownResponse toDto(Town town) {
         return TownResponse.builder()
                 .id(town.getId())
-                .legalTown(town.getLegalTown())
                 .town(town.getTown())
                 .build();
     }
