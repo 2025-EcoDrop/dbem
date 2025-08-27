@@ -21,7 +21,6 @@ public class Town {
     @JoinColumn(name = "district_id", nullable = false)
     private District district;
 
-    private String legalTown;
     private String town;
 
     @Column(unique = true)

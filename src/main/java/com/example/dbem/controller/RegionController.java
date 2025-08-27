@@ -35,9 +35,9 @@ public class RegionController {
     }
 
     @Operation(summary = "Get Towns by District", description = "Retrieves a list of towns belonging to the specified district in South Korea for detailed region selection.")
-    @GetMapping("/{district}/town")
-    public ResponseEntity<?> getTowns(@PathVariable String district) {
-        List<TownResponse> towns= this.regionService.getTowns(district);
+    @GetMapping("/{city}/{district}/town")
+    public ResponseEntity<?> getTowns(@PathVariable String city, @PathVariable String district) {
+        List<TownResponse> towns= this.regionService.getTowns(city, district);
         return ResponseEntity.ok(towns);
     }
 }
