@@ -3,8 +3,10 @@ package com.example.dbem.exception;
 import com.example.dbem.exception.custom.*;
 import com.example.dbem.exception.custom.booking.BookingForbiddenException;
 import com.example.dbem.exception.custom.booking.BookingNotFoundException;
+import com.example.dbem.exception.custom.distance.DistanceUnprocessableEntityException;
 import com.example.dbem.exception.custom.email.SendEmailInternalServerError;
 import com.example.dbem.exception.custom.email.SendEmailNotFoundException;
+import com.example.dbem.exception.custom.region.RegionNotFoundException;
 import com.example.dbem.exception.custom.review.ReviewForbiddenException;
 import com.example.dbem.exception.custom.review.ReviewNotFoundException;
 import com.example.dbem.exception.custom.user.InvalidPasswordFormatException;
@@ -168,7 +170,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ErrorResponseDTO.builder()
                         .status(500)
-                        .code("Send_Email_INTERNAL_SERVER_ERROR")
+                        .code("Send_Email_Internal_Server_Error")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(DistanceUnprocessableEntityException.class)
+    public ResponseEntity<ErrorResponseDTO> handleDistanceUnprocessableEntityException(PublicDataNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
+                ErrorResponseDTO.builder()
+                        .status(422)
+                        .code("Distance_Unprocessable_Entity")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(RegionNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleRegionNotFoundException(PublicDataNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ErrorResponseDTO.builder()
+                        .status(404)
+                        .code("Region_Not_Found")
                         .message(e.getMessage())
                         .build()
         );
