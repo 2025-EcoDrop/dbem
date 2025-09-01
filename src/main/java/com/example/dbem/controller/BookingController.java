@@ -3,7 +3,6 @@ package com.example.dbem.controller;
 import com.example.dbem.dto.booking.BookingRequestDTO;
 import com.example.dbem.dto.booking.BookingResponseDTO;
 import com.example.dbem.dto.booking.CompleteRequestDTO;
-import com.example.dbem.exception.custom.distance.DistanceUnprocessableEntityException;
 import com.example.dbem.security.userdetails.UserDetailsImpl;
 import com.example.dbem.service.BookingService;
 import com.example.dbem.service.DistanceService;
