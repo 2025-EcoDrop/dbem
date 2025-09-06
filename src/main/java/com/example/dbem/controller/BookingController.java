@@ -3,9 +3,12 @@ package com.example.dbem.controller;
 import com.example.dbem.dto.booking.BookingRequestDTO;
 import com.example.dbem.dto.booking.BookingResponseDTO;
 import com.example.dbem.dto.booking.CompleteRequestDTO;
+import com.example.dbem.enums.PointType;
 import com.example.dbem.security.userdetails.UserDetailsImpl;
 import com.example.dbem.service.BookingService;
 import com.example.dbem.service.DistanceService;
+import com.example.dbem.service.point.PointService;
+import com.example.dbem.service.point.PointTransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,8 @@ public class BookingController {
 
     private final BookingService bookingService;
     private final DistanceService distanceService;
+    private final PointService pointService;
+    private final PointTransactionService pointTransactionService;
 
     @Operation(summary = "Check Bookings", description = "Retrieves a paginated list of bookings with status REQUESTED made by the authenticated user. Supports sorting, pagination, and filtering by region.")
     @GetMapping
@@ -52,13 +57,16 @@ public class BookingController {
     @Operation(summary = "Write a Booking", description = "Creates a new Booking requested by the authenticated user.")
     @PostMapping
     public ResponseEntity<?> createBooking(@Valid @RequestBody BookingRequestDTO request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        this.pointService.checkMyPoints(userDetails.getUsername());
         BookingResponseDTO bookingResponse = this.bookingService.createBooking(request, userDetails.getUser());
+        this.pointService.payPoints(userDetails.getUsername(), 100);
+        this.pointTransactionService.savePointTransaction(userDetails.getUsername(), 100, PointType.USE.name(), bookingResponse.getId().toString(), 3);
         return ResponseEntity.ok(bookingResponse);
     }
 
     @Operation(summary = "Check a Booking", description = "Retrieves the details of a specific booking made by the authenticated user.")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> getBooking(@PathVariable Long id) {
         BookingResponseDTO bookingResponse = this.bookingService.getBooking(id);
         return ResponseEntity.ok(bookingResponse);
     }
@@ -74,6 +82,8 @@ public class BookingController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         this.bookingService.deleteBooking(id, userDetails.getUsername());
+        this.pointService.gainPoints(userDetails.getUsername(), 100);
+        this.pointTransactionService.savePointTransaction(userDetails.getUsername(), 100, PointType.CANCEL.name(), userDetails.getUsername(), 3);
         return ResponseEntity.ok("예약 삭제 완료");
     }
 
@@ -82,6 +92,7 @@ public class BookingController {
     public ResponseEntity<?> acceptBooking(@Valid @RequestBody CompleteRequestDTO request, @PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
         this.distanceService.calculateDistance(request.getLatitude1(), request.getLongitude1(), request.getLatitude2(), request.getLongitude2(), ACCEPT_DISTANCE);
         BookingResponseDTO bookingResponse = this.bookingService.acceptBooking(id, collector.getUser());
+        this.pointTransactionService.updatePointTransaction(collector.getUsername(), bookingResponse.getId().toString());
         return ResponseEntity.ok(bookingResponse);
     }
 
@@ -90,6 +101,8 @@ public class BookingController {
     public ResponseEntity<?> completeBooking(@Valid @RequestBody CompleteRequestDTO request, @PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl collector) {
         this.distanceService.calculateDistance(request.getLatitude1(), request.getLongitude1(), request.getLatitude2(), request.getLongitude2(), COMPLETE_DISTANCE);
         BookingResponseDTO bookingResponse = this.bookingService.completeBooking(id, collector.getUser());
+        this.pointService.gainPoints(collector.getUsername(), 100);
+        this.pointTransactionService.savePointTransaction(collector.getUsername(), 100, PointType.EARN.name(), bookingResponse.getBookerName(), 3);
         return ResponseEntity.ok(bookingResponse);
     }
 

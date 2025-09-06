@@ -57,4 +57,4 @@ sendgrid:
 public:
   api:
     base-url: http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList
-    service-key: ${PUBLIC_API_SERVICE_KEY}
+    service-key: # ${PUBLIC_API_SERVICE_KEY}

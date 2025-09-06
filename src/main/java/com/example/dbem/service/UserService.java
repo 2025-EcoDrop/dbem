@@ -83,7 +83,7 @@ public class UserService {
     @Transactional
     public void signup(SignupRequestDTO dto) {
         if (!this.userRepository.existsByUsername(dto.getUsername())) {
-            this.userRepository.save(
+            this.userRepository.saveAndFlush(
                     SignupRequestDTO.toModel(dto, UserRole.USER, passwordEncoder)
             );
         } else {
