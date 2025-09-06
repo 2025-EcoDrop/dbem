@@ -6,6 +6,9 @@ import com.example.dbem.exception.custom.booking.BookingNotFoundException;
 import com.example.dbem.exception.custom.distance.DistanceUnprocessableEntityException;
 import com.example.dbem.exception.custom.email.SendEmailInternalServerError;
 import com.example.dbem.exception.custom.email.SendEmailNotFoundException;
+import com.example.dbem.exception.custom.point.PointConflictException;
+import com.example.dbem.exception.custom.point.PointNotFoundException;
+import com.example.dbem.exception.custom.point.PointTransactionNotFoundException;
 import com.example.dbem.exception.custom.region.RegionNotFoundException;
 import com.example.dbem.exception.custom.review.ReviewForbiddenException;
 import com.example.dbem.exception.custom.review.ReviewNotFoundException;
@@ -41,10 +44,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        String message = "데이터베이스에 이미 저장된 값이 존재합니다.";
+        String message = "";
 
         if (ex.getCause() != null && ex.getCause().getMessage() != null) {
             String causeMessage = ex.getCause().getMessage();
+//            message = ex.getCause().getMessage();
 
             // 예: email unique constraint 위반
             if (causeMessage.contains("uk6dotkott2kjsp8vw4d0m25fb7")) {
@@ -155,7 +159,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SendEmailNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleSendEmailNotFoundException(PublicDataNotFoundException e) {
+    public ResponseEntity<ErrorResponseDTO> handleSendEmailNotFoundException(SendEmailNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 ErrorResponseDTO.builder()
                         .status(404)
@@ -166,7 +170,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SendEmailInternalServerError.class)
-    public ResponseEntity<ErrorResponseDTO> handleSendEmailInternalServerError(PublicDataNotFoundException e) {
+    public ResponseEntity<ErrorResponseDTO> handleSendEmailInternalServerError(SendEmailInternalServerError e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ErrorResponseDTO.builder()
                         .status(500)
@@ -177,7 +181,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DistanceUnprocessableEntityException.class)
-    public ResponseEntity<ErrorResponseDTO> handleDistanceUnprocessableEntityException(PublicDataNotFoundException e) {
+    public ResponseEntity<ErrorResponseDTO> handleDistanceUnprocessableEntityException(DistanceUnprocessableEntityException e) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
                 ErrorResponseDTO.builder()
                         .status(422)
@@ -188,11 +192,44 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RegionNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleRegionNotFoundException(PublicDataNotFoundException e) {
+    public ResponseEntity<ErrorResponseDTO> handleRegionNotFoundException(RegionNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 ErrorResponseDTO.builder()
                         .status(404)
                         .code("Region_Not_Found")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(PointNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handlePointNotFoundException(PointNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ErrorResponseDTO.builder()
+                        .status(404)
+                        .code("Point_Not_Found")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(PointTransactionNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handlePointNotFoundException(PointTransactionNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ErrorResponseDTO.builder()
+                        .status(404)
+                        .code("Point_Transaction_Not_Found")
+                        .message(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(PointConflictException.class)
+    public ResponseEntity<ErrorResponseDTO> handlePointNotFoundException(PointConflictException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                ErrorResponseDTO.builder()
+                        .status(409)
+                        .code("Point_Conflict")
                         .message(e.getMessage())
                         .build()
         );

@@ -1,8 +1,11 @@
 package com.example.dbem.controller;
 
 import com.example.dbem.dto.user.*;
+import com.example.dbem.enums.PointType;
 import com.example.dbem.security.userdetails.UserDetailsImpl;
+import com.example.dbem.service.point.PointService;
 import com.example.dbem.service.UserService;
+import com.example.dbem.service.point.PointTransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +23,8 @@ import java.util.Map;
 @RestController
 public class UserController {
     private final UserService userService;
+    private final PointService pointService;
+    private final PointTransactionService pointTransactionService;
 
     @Operation(summary = "Check Username Availability", description = "Checks if the provided username is already taken before completing the sign-up process.")
     @PostMapping("/check-username")
@@ -28,19 +33,20 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "User Sign-Up", description = "Registers a new user by accepting username, email, and password. " +
-            "Validates input data and creates a new user account.")
+    @Operation(summary = "User Sign-Up", description = "Registers a new user by accepting username, email, and password. Validates input data and creates a new user account.")
     @PostMapping("/signup")
     public ResponseEntity<String> signup(
             @Parameter(description = "User registration data including username, email, and password.")
             @Valid @RequestBody SignupRequestDTO dto) {
         this.userService.validatePassword(dto.getPassword());
         this.userService.signup(dto);
+        this.pointService.createPointByUser(dto.getUsername());
+        this.pointService.gainPoints(dto.getUsername(), 100);
+        this.pointTransactionService.savePointTransaction(dto.getUsername(), 100, PointType.INIT.name(),2);
         return ResponseEntity.ok("회원가입 성공");
     }
 
-    @Operation(summary = "User Login", description = "Authenticates a user with username and password. " +
-            "Returns an access token if credentials are valid.")
+    @Operation(summary = "User Login", description = "Authenticates a user with username and password. Returns an access token if credentials are valid.")
     @PostMapping("/login")
     public ResponseEntity<String> login(
             @Parameter(description = "User credentials including username and password for authentication.")
