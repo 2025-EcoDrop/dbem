@@ -3,13 +3,13 @@ app:
 
 spring:
   application:
-    name: dbme
+    name: dbem
 
   jwt:
     secret: efjeoapwgj5e6eajpgepjg8894e6Agrionawoidfjeoifag31awhoefeofja4aega45agrlkagjaejiognvlbnaio3je
 
   datasource:
-    url: jdbc:postgresql://localhost:5400/dbme
+    url: jdbc:postgresql://localhost:5400/dbem
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
