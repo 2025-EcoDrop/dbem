@@ -1,8 +1,8 @@
 version: "3.8"
 services:
   db:
-    image: postgres:14
-    container_name: my-postgres
+    image: pgvector/pgvector:pg17
+    container_name: pgv-postgres
     ports:
       - "5400:5432"
     environment:
@@ -14,7 +14,7 @@ services:
 
   redis:
     image: redis:7
-    container_name: my-redis
+    container_name: redis
     ports:
       - "6300:6379"
     volumes:
