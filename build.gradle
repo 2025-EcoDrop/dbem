@@ -58,7 +58,7 @@ dependencies {
 	// postgresSQL
 	runtimeOnly 'org.postgresql:postgresql'
 
-	// redis
+    // redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	// sendgrid
