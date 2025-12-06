@@ -1,8 +1,10 @@
 ---
+
 # 💊 DBEM - 백엔드
 Spring Boot 기반으로 개발된 폐의약품 수거 대행 서비스의 백엔드입니다.
 
 ---
+
 ## 📌 기술 스택
 - Java 21
 - Spring Boot 3.x
@@ -57,7 +59,8 @@ Spring Boot 기반으로 개발된 폐의약품 수거 대행 서비스의 백�
 - 의약품 공공데이터 조회
 
 ---
-📁 주요 디렉터리 구조
+
+## 📁 주요 디렉터리 구조
 ```bash
 src/main/java/com/example/
 │
