@@ -23,7 +23,7 @@ Spring Boot 기반으로 개발된 폐의약품 수거 대행 서비스의 백�
 - Access-Token + Refresh-Token 구현
 - Refresh-Token은 Redis에 저장 & 재발급 가능
 
-### 2. 🖱️ e-mail 인증
+### 2. 📫 e-mail 인증
 - SendgGrid Email API를 이용한 e-mail 인증
 - 입력된 e-mail 주소로 인증 e-mail 전송
   - e-mail 본문에 유효한 토큰 및 인증 링크를 첨부
@@ -44,11 +44,15 @@ Spring Boot 기반으로 개발된 폐의약품 수거 대행 서비스의 백�
 - 약품 수거 예약을 예약 위치 별로 조회 가능
 - 유저 별로 약품 수거 현황 조회 가능
 
-### 4. 📝 약품 리뷰
+### 4. 🏷️ 약품 추천 API
+- 입력받은 증상 및 주의사항을 바탕으로 약품 추천
+- FastAPI 모델 서버와 연동하여 추천 (RAG 기반 DB 검색을 이용)
+
+### 5. 📝 약품 리뷰
 - 약품 리뷰 CRUD API
 - 유저 별로 자신의 리뷰 조회 및 검색 가능
 
-### 5. 🔎 행정구역 & 공공데이터 조회
+### 6. 🔎 행정구역 & 공공데이터 조회
 - 데이터 베이스에 저장된 행정 지역 조회
 - 의약품 공공데이터 조회
 
@@ -61,7 +65,7 @@ src/main/java/com/example/
 │ 
 ├── config/ # Security, CORS 설정
 │ 
-├── controller/ # REST API 및 WebSocket Controller
+├── controller/ # REST API
 │ 
 ├── dto/ # 요청 및 응답 DTO
 │ 
