@@ -1,6 +1,9 @@
 app:
   baseUrl: http://localhost:8080
 
+fastapi:
+  base-url: ${FASTAPI_BASE_URL:http://127.0.0.1:8000}
+
 spring:
   application:
     name: dbem

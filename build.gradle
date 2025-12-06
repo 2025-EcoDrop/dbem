@@ -63,6 +63,9 @@ dependencies {
 
 	// sendgrid
 	implementation 'com.sendgrid:sendgrid-java:4.9.3'
+
+    // Spring WebFlux
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 tasks.named('test') {
