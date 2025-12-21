@@ -94,6 +94,13 @@ public class BookingService {
         return BookingResponseDTO.toDto(booking);
     }
 
+    public String checkBooking(Long id) {
+        Booking booking = this.bookingRepository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException("해당 예약을 찾을 수 없습니다."));
+
+        return booking.getStatus();
+    }
+
     public void deleteBooking(Long id, String username) {
         Booking booking = this.bookingRepository.findById(id)
                 .orElseThrow(() -> new BookingNotFoundException("해당 예약을 찾을 수 없습니다."));

@@ -71,7 +71,7 @@ public class PointService {
         Point point = this.pointRepository.findByUser(user)
                 .orElseThrow(() -> new PointNotFoundException("해당 유저의 포인트를 찾을 수 없습니다."));
 
-        if (point.getBalance() <= 100) {
+        if (point.getBalance() < 100) {
             throw new PointConflictException("포인트가 부족합니다. 다른 사용자의 수거를 도와주거나 포인트를 충전해 주세요.");
         }
     }

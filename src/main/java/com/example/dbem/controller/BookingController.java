@@ -3,6 +3,7 @@ package com.example.dbem.controller;
 import com.example.dbem.dto.booking.BookingRequestDTO;
 import com.example.dbem.dto.booking.BookingResponseDTO;
 import com.example.dbem.dto.booking.CompleteRequestDTO;
+import com.example.dbem.enums.BookingStatus;
 import com.example.dbem.enums.PointType;
 import com.example.dbem.security.userdetails.UserDetailsImpl;
 import com.example.dbem.service.BookingService;
@@ -81,10 +82,15 @@ public class BookingController {
     @Operation(summary = "Delete a Booking", description = "Deletes a specific booking made by the authenticated user.")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBooking(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        this.bookingService.deleteBooking(id, userDetails.getUsername());
-        this.pointService.gainPoints(userDetails.getUsername(), 100);
-        this.pointTransactionService.savePointTransaction(userDetails.getUsername(), 100, PointType.CANCEL.name(), userDetails.getUsername(), 3);
-        return ResponseEntity.ok("예약 삭제 완료");
+        if (this.bookingService.checkBooking(id).equals(BookingStatus.COMPLETED.toString())) {
+            this.bookingService.deleteBooking(id, userDetails.getUsername());
+            return ResponseEntity.ok("예약 삭제 완료");
+        } else {
+            this.bookingService.deleteBooking(id, userDetails.getUsername());
+            this.pointService.gainPoints(userDetails.getUsername(), 100);
+            this.pointTransactionService.savePointTransaction(userDetails.getUsername(), 100, PointType.CANCEL.name(), userDetails.getUsername(), 3);
+            return ResponseEntity.ok("예약 삭제 완료");
+        }
     }
 
     @Operation(summary = "Accept a Booking", description = "Marks the booking as accepted, enabling further processing or fulfillment, provided that the current location is within the permitted distance from the booking location.")
