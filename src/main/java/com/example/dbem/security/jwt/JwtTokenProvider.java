@@ -24,7 +24,7 @@ public class JwtTokenProvider {
     public String createToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuer("smemo")
+                .setIssuer("dbem")
                 .claim("type", "access")
                 .setIssuedAt(new Date())
                 .setExpiration((new Date(System.currentTimeMillis() + 60 * 60 * 1000)))
@@ -35,7 +35,7 @@ public class JwtTokenProvider {
     public String createRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuer("smemo")
+                .setIssuer("dbem")
                 .claim("type", "refresh")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000))
